@@ -1,0 +1,96 @@
+# Playbook for deploying a VM via oVirt & Ansible
+
+- name: oVirt - Obtain SSO token with using username/password credentials
+  ovirt_auth:
+    url: https://{{ ovirt.manager }}/ovirt-engine/api
+    username: "{{ ovirt_user }}"
+    ca_file: "{{ ovirt_ca_file }}"
+    password: "{{ ovirt_pass }}"
+  run_once: yes
+  delegate_to: localhost
+
+- name: oVirt - Deploy a new VM from template 
+  ovirt_vm:
+    auth: "{{ ovirt_auth }}"
+    state: present
+    template: "{{ vm.template }}"
+    cluster: "{{ ovirt.cluster }}"
+    storage_domain: "{{ ovirt.disk.data1.datastore }}"
+    name: "{{ inventory_hostname }}"
+    memory: "{{ vm.ram }}GiB"
+    cpu_cores: "{{ vm.cpucores }}"
+    cpu_sockets: "{{ vm.cpusockets }}"
+    type: server
+    description: "{{ vm.description }}"
+    comment: "{{ vm.description }}"
+    operating_system: rhel_7x64
+    clone: yes
+    timeout: 600
+
+- name: oVirt - Attach disk 
+  ovirt_disk:
+    auth: "{{ ovirt_auth }}"
+    name: "{{ item.1.name }}"
+    bootable: false
+    storage_domain: "{{ item.1.datastore }}"
+    size: "{{ item.1.taille }}GiB"
+    state: attached
+    format: "{{ item.1.format }}"
+    vm_name: "{{ inventory_hostname }}"
+    interface: "{{ item.1.interface }}"
+  loop: "{{ ovirt.disk | dictsort }}"
+  when: item.0 != "data1"
+
+- name: oVirt - Attach Network Card to the switch "{{ ovirt.switch_admin }}"
+  ovirt_nic:
+    auth: "{{ ovirt_auth }}"
+    state: present
+    vm: "{{ inventory_hostname }}"
+    name: nic1
+    interface: virtio
+    profile: "{{ ovirt.switch_admin }}"
+    network: "{{ ovirt.switch_admin }}"
+  when: ovirt.switch_dmz == ""
+
+- name: oVirt - Attach Network Card to the switch "{{ ovirt.switch_dmz }}"
+  ovirt_nic:
+    auth: "{{ ovirt_auth }}"
+    state: present
+    vm: "{{ inventory_hostname }}"
+    name: nic1
+    interface: virtio
+    profile: "{{ ovirt.switch_admin }}"
+    network: "{{ ovirt.switch_admin }}"
+  when: ovirt.switch_admin == ""
+
+- name: oVirt - Starting New VM
+  ovirt_vm:
+    auth: "{{ ovirt_auth }}"
+    state: running
+    name: "{{ inventory_hostname }}"
+    wait: yes
+
+- name: oVirt - Obtain the id of the root disk 
+  ovirt_vm_info:
+   auth: "{{ ovirt_auth }}"
+   pattern: name="{{ inventory_hostname }}"
+   fetch_nested: yes
+  register: disk_id
+
+- name: oVirt - Store the id in a fact
+  set_fact: vm_disk_id="{{ disk_id.ovirt_vms[0].disk_attachments[1].id }}"
+
+- name: oVirt - Rename the root disk of the new VM
+  ovirt_disk:
+    auth: "{{ ovirt_auth }}"
+    id: "{{ vm_disk_id }}"
+    storage_domain: "{{ ovirt.disk.data1.datastore }}"
+    name: "{{ inventory_hostname }}_root"
+    vm_name: "{{ inventory_hostname }}"
+
+- name: oVirt - Revoke SSO Token
+  ovirt_auth:
+    state: absent
+    ovirt_auth: "{{ ovirt_auth }}"
+  run_once: yes
+  delegate_to: localhost

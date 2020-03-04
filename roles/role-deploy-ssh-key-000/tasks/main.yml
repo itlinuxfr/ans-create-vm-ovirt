@@ -1,0 +1,48 @@
+- name: Key Exchange - Obtain SSO token with using username/password credentials
+  ovirt_auth:
+    url: https://{{ ovirt.manager }}/ovirt-engine/api
+    username: "{{ ovirt_user }}"
+    ca_file: "{{ ovirt_ca_file }}"
+    password: "{{ ovirt_pass }}"
+  run_once: yes
+  delegate_to: localhost
+
+- name: Key Exchange - Wait for VM Up
+  wait_for:
+    timeout: 45
+  delegate_to: localhost
+
+- name: Key Exchange - Get the ipv4 address of the VM
+  ovirt_nic_facts:
+    auth: "{{ ovirt_auth }}"
+    vm: "{{ inventory_hostname }}"
+  
+- name: Key Exchange - Store the dhcp ip to a fact
+  set_fact: ip_dhcp="{{ ovirt_nics[0].reported_devices[0].ips[0].address }}"
+
+- name: Key Exchange - Check if host is not already in the known_hosts file
+  lineinfile:
+    path: /root/.ssh/known_hosts
+    state: absent
+    regexp: '^{{ item }}'
+  delegate_to: localhost
+  with_items:
+    - "{{ inventory_hostname }}"
+  tags:
+    - erase_ssh_key
+
+- name: Key Exchange - Check the connection
+  wait_for_connection:
+    connect_timeout: 30
+    sleep: 5
+    delay: 5
+    timeout: 300
+
+- name: Key Exchange - Copy the ssh key to the remote host
+  authorized_key:
+    user: root
+    key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+    state: present
+  tags:
+    - deploy_ssh_key
+  delegate_to: "{{ ip_dhcp }}"

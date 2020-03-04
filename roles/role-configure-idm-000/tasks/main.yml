@@ -1,0 +1,66 @@
+- name: oVirt - Wait for VM Up
+  wait_for:
+    timeout: 45
+  delegate_to: localhost
+
+- name: oVirt - Get the ip of the vm
+  uri:
+    url: http://{{ ipam_ip }}/api/dcim/devices/?q={{ inventory_hostname }}
+    method: GET
+    return_content: yes
+    headers:
+        Content-Type: "application/json"
+        Accept: "application/json"
+        Authorization: "Token {{ ipam.token }}"
+        status_code: 200
+    status_code: 200
+  register: network_device
+  delegate_to: 127.0.0.1
+
+- name: oVirt - Affect ip address to a fact
+  set_fact: ip_device="{{ (network_device.content | from_json).results | json_query('[0].primary_ip.address') }}"
+
+- name: oVirt - Affect ip of the server to a fact
+  set_fact: ip_server="{{ ip_device | ipaddr('address') }}"
+
+- name: oVirt - Load the domain from the fqdn
+  set_fact: server_fqdn="{{ inventory_hostname.split('.')[1:] |join('.') }}"
+
+- name: FreeIPA - Run gather facts with the ip
+  setup:
+  delegate_to: "{{ ip_server }}"
+  register: host_facts
+
+- name: FreeIPA - Ensure dns record A is present
+  ipa_dnsrecord:
+    ipa_host: "{{ reseau.ipa_server }}"
+    ipa_user: "{{ ipa_user }}"
+    ipa_pass: "{{ ipa_pass }}"
+    state: present
+    zone_name: "{{ server_fqdn }}"
+    record_name: "{{ ansible_hostname }}"
+    record_type: 'A'
+    record_value: "{{ host_facts.ansible_facts.ansible_default_ipv4.address }}"
+  delegate_to: 127.0.0.1
+
+- name: FreeIPA - Ensure dns record PTR is present
+  ipa_dnsrecord:
+    ipa_host: "{{ reseau.ipa_server }}"
+    ipa_user: "{{ ipa_user }}"
+    ipa_pass: "{{ ipa_pass }}"
+    state: present
+    zone_name: "{{ host_facts.ansible_facts.ansible_default_ipv4.network | ipaddr('revdns') | regex_replace('^0.', '') }}"
+    record_name: "{{ ip_server.split('.')[0:4] |json_query('[3]') }}"
+    record_type: 'PTR'
+    record_value: "{{ inventory_hostname }}."
+  delegate_to: 127.0.0.1
+
+- name: FreeIPA - Ensure that the freeipa client package are installed
+  yum:
+    name: ipa-client
+    state: present
+  delegate_to: "{{ ip_server }}"
+
+- name: FreeIPA - Register to the FreeIPA Domain {{ server_fqdn }}
+  shell: "ipa-client-install --principal={{ ipa_user }} --password={{ ipa_pass }} --server={{ reseau.ipa_server }} --realm={{ server_fqdn | upper }} --domain={{ server_fqdn }} --hostname {{ inventory_hostname }} --fixed-primary --unattended --mkhomedir"
+  delegate_to: "{{ ip_server }}"

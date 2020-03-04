@@ -1,0 +1,12 @@
+---
+
+# Importer les playbooks pour l'installation complète :
+
+- hosts: deploy
+  gather_facts: false
+
+- import_playbook: 0100-playbook-create-vm.yml 
+- import_playbook: 0105-playbook-deploy-ssh-key-vm.yml
+- import_playbook: 0110-playbook-configure-vm.yml
+- import_playbook: 0115-playbook-configure-idm-vm.yml
+- import_playbook: 0120-playbook-configure-foreman-client.yml

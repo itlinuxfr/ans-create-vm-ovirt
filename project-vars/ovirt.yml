@@ -1,0 +1,3 @@
+project_vault: password_protected
+ovirt_ca_file: /applis/ansible/ans-create-vm-ovirt/roles/role-create-vm-ovirt-000/files/pki-resource.cer
+ipam_ip: lx0004.it-linux.priv

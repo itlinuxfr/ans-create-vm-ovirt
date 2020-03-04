@@ -1,0 +1,88 @@
+---
+- name: Katello - Download the root ca rpm from katello server
+  get_url:
+    url: "https://{{ katello.server }}/pub/{{ katello.rpm_ca }}"
+    dest: "/tmp"
+    owner: root
+    group: root
+    mode: 0644
+    validate_certs: false
+
+- name: Katello - Copy the migration script on the remote host
+  copy:
+    src: bootstrap.py
+    dest: /tmp
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Katello - Install the root ca rpm downloaded
+  yum:
+    name: "/tmp/{{ katello.rpm_ca }}"
+    state: present
+- name: Katello - Delete the root ca rpm from /tmp
+  file:
+    state: absent
+    path: "/tmp/{{ katello.rpm_ca }}"
+
+- name: Katello - Find all default repos on the host
+  find:
+    path: /etc/yum.repos.d
+    patterns: '*.repo'
+  register: list_old_repos
+
+- name: Katello - Remove old repos
+  file:
+    path: /etc/yum.repos.d/{{ item }}
+    state: absent
+  loop: "{{ list_old_repos.files }}"
+
+- name: Katello - Register to the katello server with the migration script
+  shell: |
+        ./bootstrap.py \
+        --login={{ katello.user }} \
+        --password={{ katello.pass }} \
+        --server={{ katello.server }} \
+        --fqdn={{ inventory_hostname }} \
+        --activationkey={{ katello.ak }} \
+        --hostgroup={{ katello.hg }} \
+        --organization={{ katello.org }} \
+        --location={{ katello.location }} \
+        --operatingsystem="{{ ansible_distribution }} 7" \
+        --ip={{ ansible_default_ipv4.address }} \
+        --comment="{{ vm.description }}" \
+        --skip=puppet \
+        --force
+  args:
+    chdir: /tmp
+    warn: no
+
+- name: Katello - Remove the migration script from /tmp
+  file:
+    path: /tmp/bootstrap.py
+    state: absent
+
+- name: Katello - Install katello packages
+  yum: 
+    name: "{{ item }}"
+  loop:
+    - katello-host-tools-tracer
+    - katello-host-tools
+    - katello-agent
+
+- name: Katello - Running full update of the host
+  yum:
+    name: "*"
+    state: latest
+
+- name: Katello - Reboot in case kernel major update
+  shell: "sleep 5 && reboot"
+  async: 1
+  poll: 0
+
+- name: Katello - Wait for the host to be up
+  wait_for_connection:
+    connect_timeout: 20
+    sleep: 5
+    delay: 5
+    timeout: 300
