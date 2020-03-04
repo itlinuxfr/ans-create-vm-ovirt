@@ -1,0 +1,21 @@
+---
+- hosts: deploy
+  remote_user: root
+  gather_facts: false
+#  connection: local
+  pre_tasks:
+  - name: Inclure les variables du projet
+    include_vars:
+      file: "/applis/ansible/ans-create-vm-ovirt/project-vars/ovirt.yml"
+  - name: Inclure les variables de la VM
+    include_vars:
+      file: "/applis/ansible/ans-create-vm-ovirt/host_vars/{{ inventory_hostname}}/main.yml"
+  - name: Sourcer le vault
+    include_vars:
+      file: "/applis/ansible/ans-create-vm-ovirt/vault/{{ project_vault }}.yml"
+
+  tasks:
+  - name: Inclure les roles
+    include_role:
+      name: role-configure-idm-000
+      allow_duplicates: false

@@ -1,0 +1,5 @@
+[deploy]
+lx0009.it-linux.priv
+
+[ovirt-controller]
+ovirt-mng.it-linux.priv
