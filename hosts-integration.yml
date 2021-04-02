@@ -1,8 +1,8 @@
 all:
-  deploy:
-    hosts: 
-      lx0005.it-linux.priv:
-  ovirt-controller:
-    hosts:
-      ovirt-managed.it-linux.priv:
-
+  children:
+    deploy:
+      hosts: 
+        lx0005.it-linux.priv:
+    ovirt-controller:
+      hosts:
+        ovirt-managed.it-linux.priv:
