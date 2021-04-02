@@ -12,10 +12,10 @@
     include_vars:
       #file: "/applis/ansible/ans-create-vm-ovirt/host_vars/{{ inventory_hostname}}/main.yml"
       file: "{{ playbook_dir }}/host_vars/{{ inventory_hostname}}/main.yml"
-  - name: Sourcer le vault
-    include_vars:
-      #file: "/applis/ansible/ans-create-vm-ovirt/vault/{{ project_vault }}.yml"
-      file: "{{ playbook_dir }}/vault/{{ project_vault }}.yml"
+  #- name: Sourcer le vault
+  #  include_vars:
+  #    #file: "/applis/ansible/ans-create-vm-ovirt/vault/{{ project_vault }}.yml"
+  #    file: "{{ playbook_dir }}/vault/{{ project_vault }}.yml"
 
   tasks:
   - name: Inclure les roles
