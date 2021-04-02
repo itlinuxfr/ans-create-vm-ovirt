@@ -1,0 +1,14 @@
+#[deploy]
+#lx0005.it-linux.priv
+
+#[ovirt-controller]
+#ovirt-managed.it-linux.priv
+
+all:
+  deploy:
+    hosts: 
+      lx0005.it-linux.priv
+  ovirt-controller:
+    hosts:
+      ovirt-managed.it-linux.priv
+
