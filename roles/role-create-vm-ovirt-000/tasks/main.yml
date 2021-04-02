@@ -2,9 +2,9 @@
 - name: oVirt - Obtain SSO token with using username/password credentials
   ovirt.ovirt.ovirt_auth:
     url: "{{ lookup('env','OVIRT_URL') }}"
-    username: {{ lookup('env','OVIRT_USERNAME') }}
+    username: "{{ lookup('env','OVIRT_USERNAME') }}"
     ca_file: "{{ ovirt_ca_file }}"
-    password: {{ lookup('env','OVIRT_PASSWORD') }}
+    password: "{{ lookup('env','OVIRT_PASSWORD') }}"
     state: present
   run_once: yes
   delegate_to: localhost
