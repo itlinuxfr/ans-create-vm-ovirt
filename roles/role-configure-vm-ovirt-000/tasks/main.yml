@@ -1,5 +1,5 @@
 - name: oVirt - Obtain SSO token with using username/password credentials
-  ovirt.ovirt.ovirt_auth:
+  ovirt_auth:
     url: "{{ ovirt.manager }}"
     username: "{{ ovirt.username }}"
     password: "{{ ovirt.password }}"
