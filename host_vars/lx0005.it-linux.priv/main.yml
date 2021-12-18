@@ -1,9 +1,9 @@
 vm:
-  ram: 2
+  ram: 4
   cpucores: 2
   cpusockets: 1
   description: "TEST"
-  template: "template_centos_7_server"
+  template: "TemplateCentOSStream"
 
 ovirt:
   manager: ovirt-managed.it-linux.priv
@@ -19,7 +19,7 @@ ovirt:
     data1:
       taille: 40
       format: cow
-      datastore: SILVER_HDD_01_DATA
+      datastore: STO_SAS_VM_01
       interface: virtio_scsi
       name: "{{ inventory_hostname }}_root"
       mount: /root
@@ -33,7 +33,7 @@ ovirt:
     data3:
       taille: 10
       format: cow
-      datastore: SILVER_HDD_01_DATA
+      datastore: STO_SAS_VM_01
       interface: virtio_scsi
       name: "{{ inventory_hostname }}_applis"
       mount: /applis
