@@ -1,12 +1,11 @@
 # Playbook for deploying a VM via oVirt & Ansible
 - name: oVirt - Obtain SSO token with using username/password credentials
-  ovirt.ovirt.ovirt_auth:
-    url: "{{ lookup('env','OVIRT_URL') }}"
-    username: "{{ lookup('env','OVIRT_USERNAME') }}"
-    ca_file: "{{ ovirt_ca_file }}"
-    password: "{{ lookup('env','OVIRT_PASSWORD') }}"
-    state: present
+  ovirt_auth:
+    url: "{{ ovirt.manager }}"
+    username: "{{ ovirt.username }}"
+    password: "{{ ovirt.password }}"
   run_once: yes
+  insecure: yes
   delegate_to: localhost
 
 - name: oVirt - Deploy a new VM from template 
