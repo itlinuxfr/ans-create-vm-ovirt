@@ -34,7 +34,7 @@
   register: disk_id
 
 - name: oVirt - Store the id in a fact
-  set_fact: vm_disk_id="{{ disk_id.ovirt_vms[0].disk_attachments[1].id }}"
+  set_fact: vm_disk_id="{{ disk_id.ovirt_vms[0].disk_attachments[0].id }}"
 
 - name: oVirt - Rename the root disk of the new VM
   ovirt_disk:
