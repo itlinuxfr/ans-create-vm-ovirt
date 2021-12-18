@@ -7,97 +7,97 @@
   insecure: yes
   delegate_to: localhost
 
-- name: oVirt - Get the ipv4 address of the VM
-  ovirt_nic_facts:
-    auth: "{{ ovirt_auth }}"
-    vm: "{{ inventory_hostname }}"
-  delegate_to: localhost
+# - name: oVirt - Get the ipv4 address of the VM
+#   ovirt_nic_facts:
+#     auth: "{{ ovirt_auth }}"
+#     vm: "{{ inventory_hostname }}"
+#   delegate_to: localhost
 
-- name: oVirt - Store the dhcp ip to a fact
-  set_fact: ip_dhcp="{{ ovirt_nics[0].reported_devices[0].ips[0].address }}"
-  delegate_to: localhost
+# - name: oVirt - Store the dhcp ip to a fact
+#   set_fact: ip_dhcp="{{ ovirt_nics[0].reported_devices[0].ips[0].address }}"
+#   delegate_to: localhost
 
-- name: oVirt - Verify that ovirt-guest-agent is running
-  systemd:
-    name: ovirt-guest-agent
-    state: started
-    enabled: yes
-  delegate_to: "{{ ip_dhcp }}"
+# - name: oVirt - Verify that ovirt-guest-agent is running
+#   systemd:
+#     name: ovirt-guest-agent
+#     state: started
+#     enabled: yes
+#   delegate_to: "{{ ip_dhcp }}"
 
-- name: oVirt - Change Hostname
-  hostname:
-    name: "{{ inventory_hostname }}"
-  delegate_to: "{{ ip_dhcp }}"
+# - name: oVirt - Change Hostname
+#   hostname:
+#     name: "{{ inventory_hostname }}"
+#   delegate_to: "{{ ip_dhcp }}"
 
-- name: oVirt - Delete old machine id
-  file:
-    path: /etc/machine-id
-    state: absent
-  delegate_to: "{{ ip_dhcp }}"
+# - name: oVirt - Delete old machine id
+#   file:
+#     path: /etc/machine-id
+#     state: absent
+#   delegate_to: "{{ ip_dhcp }}"
 
-- name: oVirt - Generate a new machine id
-  shell: "systemd-machine-id-setup"
-  delegate_to: "{{ ip_dhcp }}"
+# - name: oVirt - Generate a new machine id
+#   shell: "systemd-machine-id-setup"
+#   delegate_to: "{{ ip_dhcp }}"
 
-- name: oVirt - Fact setup of vm
-  setup:
-  register: host_fact
-  delegate_to: "{{ ip_dhcp }}"
+# - name: oVirt - Fact setup of vm
+#   setup:
+#   register: host_fact
+#   delegate_to: "{{ ip_dhcp }}"
 
-- name: oVirt - Store the address ipv4 with netmask
-  set_fact: net_mask="{{ host_fact.ansible_facts.ansible_default_ipv4.network }}/{{ host_fact.ansible_facts.ansible_default_ipv4.netmask }}"
-  delegate_to: "{{ ip_dhcp }}"
+# - name: oVirt - Store the address ipv4 with netmask
+#   set_fact: net_mask="{{ host_fact.ansible_facts.ansible_default_ipv4.network }}/{{ host_fact.ansible_facts.ansible_default_ipv4.netmask }}"
+#   delegate_to: "{{ ip_dhcp }}"
 
-- name: oVirt - Calcul the real netmask of the network
-  set_fact: net_prefix="{{ net_mask | ipaddr('net') }}"
-  delegate_to: "{{ ip_dhcp }}"
+# - name: oVirt - Calcul the real netmask of the network
+#   set_fact: net_prefix="{{ net_mask | ipaddr('net') }}"
+#   delegate_to: "{{ ip_dhcp }}"
 
-- name: oVirt - Verify if the device and ip exist in netbox
-  import_role:
-    name: /applis/ansible/ans-manage-ipam/roles/role-test-ip-interface-000
+# - name: oVirt - Verify if the device and ip exist in netbox
+#   import_role:
+#     name: /applis/ansible/ans-manage-ipam/roles/role-test-ip-interface-000
 
-  vars:
-    device_hostname: "{{ inventory_hostname }}"
-    interface_mac: "{{ host_fact.ansible_facts.ansible_default_ipv4.macaddress }}"
+#   vars:
+#     device_hostname: "{{ inventory_hostname }}"
+#     interface_mac: "{{ host_fact.ansible_facts.ansible_default_ipv4.macaddress }}"
 
-- name: oVirt - Get the list of free ip in the current subnet
-  import_role:
-    name: /applis/ansible/ans-manage-ipam/roles/role-ipam-retrieve-ip-interface-000
+# - name: oVirt - Get the list of free ip in the current subnet
+#   import_role:
+#     name: /applis/ansible/ans-manage-ipam/roles/role-ipam-retrieve-ip-interface-000
 
-  vars:
-    device_hostname: "{{ inventory_hostname }}"
-    interface_mac: "{{ host_fact.ansible_facts.ansible_default_ipv4.macaddress }}"
-    interface_name: "{{ host_fact.ansible_facts.ansible_default_ipv4.interface }}"
-    device_role: '3'
-    device_site: '1'
-    device_type: '11'
-  when:
-    - ipam_interface_count != "1"
-    - ipam_device_count != "1"
-    #- (ip is undefined) or (ip is none) or (ip|trim == '')
+#   vars:
+#     device_hostname: "{{ inventory_hostname }}"
+#     interface_mac: "{{ host_fact.ansible_facts.ansible_default_ipv4.macaddress }}"
+#     interface_name: "{{ host_fact.ansible_facts.ansible_default_ipv4.interface }}"
+#     device_role: '3'
+#     device_site: '1'
+#     device_type: '11'
+#   when:
+#     - ipam_interface_count != "1"
+#     - ipam_device_count != "1"
+#     #- (ip is undefined) or (ip is none) or (ip|trim == '')
 
-- name: oVirt - Modify the default connection
-  shell: "nmcli con mod {{ host_fact.ansible_facts.ansible_default_ipv4.interface }} ipv4.addresses {{ ip }} ipv4.gateway {{ host_fact.ansible_facts.ansible_default_ipv4.gateway }} ipv4.dns {{ reseau.dns1 }},{{ reseau.dns2 }} ipv4.dns-search {{ reseau.domain }} autoconnect yes ipv4.method manual"
-  delegate_to: "{{ ip_dhcp }}"
+# - name: oVirt - Modify the default connection
+#   shell: "nmcli con mod {{ host_fact.ansible_facts.ansible_default_ipv4.interface }} ipv4.addresses {{ ip }} ipv4.gateway {{ host_fact.ansible_facts.ansible_default_ipv4.gateway }} ipv4.dns {{ reseau.dns1 }},{{ reseau.dns2 }} ipv4.dns-search {{ reseau.domain }} autoconnect yes ipv4.method manual"
+#   delegate_to: "{{ ip_dhcp }}"
 
-- name: oVirt - Reboot the vm
-  shell: "sleep 5 && reboot"
-  async: 1
-  poll: 0
-  delegate_to: "{{ ip_dhcp }}"
+# - name: oVirt - Reboot the vm
+#   shell: "sleep 5 && reboot"
+#   async: 1
+#   poll: 0
+#   delegate_to: "{{ ip_dhcp }}"
 
-- name: oVirt - Revoke SSO Token
-  ovirt_auth:
-    state: absent
-    ovirt_auth: "{{ ovirt_auth }}"
-  run_once: yes
-  delegate_to: localhost
+# - name: oVirt - Revoke SSO Token
+#   ovirt_auth:
+#     state: absent
+#     ovirt_auth: "{{ ovirt_auth }}"
+#   run_once: yes
+#   delegate_to: localhost
 
-- name: oVirt - Update ssh file if needed
-  lineinfile:
-    dest: /root/.ssh/known_hosts
-    regexp: "{{ item }}"
-    state: absent
-  loop:
-    - "{{ ip | ipaddr('address') }}"
-  delegate_to: localhost
+# - name: oVirt - Update ssh file if needed
+#   lineinfile:
+#     dest: /root/.ssh/known_hosts
+#     regexp: "{{ item }}"
+#     state: absent
+#   loop:
+#     - "{{ ip | ipaddr('address') }}"
+#   delegate_to: localhost
