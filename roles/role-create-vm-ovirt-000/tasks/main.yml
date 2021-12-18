@@ -63,7 +63,7 @@
     auth: "{{ ovirt_auth }}"
     state: present
     vm: "{{ inventory_hostname }}"
-    name: nic1
+    name: "nic1_{{ ovirt.switch_one }}"
     interface: virtio
     profile: "{{ ovirt.switch_one }}"
     network: "{{ ovirt.switch_one }}"
@@ -74,7 +74,7 @@
     auth: "{{ ovirt_auth }}"
     state: present
     vm: "{{ inventory_hostname }}"
-    name: nic1
+    name: "nic2_{{ ovirt.switch_one }}"
     interface: virtio
     profile: "{{ ovirt.switch_two }}"
     network: "{{ ovirt.switch_two }}"
