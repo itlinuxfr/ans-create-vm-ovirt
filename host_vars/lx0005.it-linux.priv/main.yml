@@ -11,9 +11,9 @@ ovirt:
   cluster: IT-Linux-CT01
   node: ovirt-01.it-linux.priv
   # Type ovirtmgmt for admin network or let it empty for dmz
-  switch_admin: ovirtmgmt
+  switch_one: ovirtmgmt
    # Type dmzmgmt for dmz network or let it empty for admin
-  switch_dmz:
+  switch_two: OV_VLAN_10_DATA
   ha: false
   disk:
     data1:
@@ -23,13 +23,6 @@ ovirt:
       interface: virtio_scsi
       name: "{{ inventory_hostname }}_root"
       mount: /root
-    # data2:
-    #   taille: 4
-    #   format: cow
-    #   datastore: datastore_vm_01
-    #   interface: virtio_scsi
-    #   name: "{{ inventory_hostname }}_swap"
-    #   mount: /swap
     data3:
       taille: 10
       format: cow
