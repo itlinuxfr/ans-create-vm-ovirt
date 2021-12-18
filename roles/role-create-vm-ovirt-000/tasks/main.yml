@@ -58,7 +58,7 @@
   loop: "{{ ovirt.disk | dictsort }}"
   when: item.0 != "data1"
 
-- name: oVirt - Attach Network Card to the switch "{{ ovirt.switch_admin }}"
+- name: oVirt - Attach Network Card to the switch "{{ ovirt.switch_one }}"
   ovirt_nic:
     auth: "{{ ovirt_auth }}"
     state: present
@@ -67,9 +67,9 @@
     interface: virtio
     profile: "{{ ovirt.switch_admin }}"
     network: "{{ ovirt.switch_admin }}"
-  when: ovirt.switch_dmz == ""
+  when: ovirt.switch_one is defined
 
-- name: oVirt - Attach Network Card to the switch "{{ ovirt.switch_dmz }}"
+- name: oVirt - Attach a secondary Network Card to the switch "{{ ovirt.switch_two }}"
   ovirt_nic:
     auth: "{{ ovirt_auth }}"
     state: present
@@ -78,7 +78,7 @@
     interface: virtio
     profile: "{{ ovirt.switch_admin }}"
     network: "{{ ovirt.switch_admin }}"
-  when: ovirt.switch_admin == ""
+  when: ovirt.switch_two is defined
 
 - name: oVirt - Starting New VM
   ovirt_vm:
@@ -86,8 +86,6 @@
     state: running
     name: "{{ inventory_hostname }}"
     wait: yes
-
-
 
 - name: oVirt - Revoke SSO Token
   ovirt_auth:
