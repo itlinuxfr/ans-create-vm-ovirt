@@ -4,8 +4,8 @@
     url: "{{ ovirt.manager }}"
     username: "{{ ovirt.username }}"
     password: "{{ ovirt.password }}"
+    insecure: yes
   run_once: yes
-  insecure: yes
   delegate_to: localhost
 
 - name: oVirt - Deploy a new VM from template 
