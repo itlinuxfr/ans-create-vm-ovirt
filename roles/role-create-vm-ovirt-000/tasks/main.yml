@@ -65,8 +65,8 @@
     vm: "{{ inventory_hostname }}"
     name: nic1
     interface: virtio
-    profile: "{{ ovirt.switch_admin }}"
-    network: "{{ ovirt.switch_admin }}"
+    profile: "{{ ovirt.switch_one }}"
+    network: "{{ ovirt.switch_one }}"
   when: ovirt.switch_one is defined
 
 - name: oVirt - Attach a secondary Network Card to the switch "{{ ovirt.switch_two }}"
@@ -76,8 +76,8 @@
     vm: "{{ inventory_hostname }}"
     name: nic1
     interface: virtio
-    profile: "{{ ovirt.switch_admin }}"
-    network: "{{ ovirt.switch_admin }}"
+    profile: "{{ ovirt.switch_two }}"
+    network: "{{ ovirt.switch_two }}"
   when: ovirt.switch_two is defined
 
 - name: oVirt - Starting New VM
