@@ -10,9 +10,7 @@ ovirt:
   datacenter: IT-Linux-DTC01
   cluster: IT-Linux-CT01
   node: ovirt-01.it-linux.priv
-  # Type ovirtmgmt for admin network or let it empty for dmz
   switch_one: ovirtmgmt
-   # Type dmzmgmt for dmz network or let it empty for admin
   switch_two: OV_VLAN_10_DATA
   ha: false
   disk:
