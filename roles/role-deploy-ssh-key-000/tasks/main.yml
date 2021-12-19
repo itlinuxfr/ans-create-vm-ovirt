@@ -13,7 +13,7 @@
   delegate_to: localhost
 
 - name: Key Exchange - Get the ipv4 address of the VM
-  ovirt_nic_facts:
+  ovirt_nic_info:
     auth: "{{ ovirt_auth }}"
     vm: "{{ inventory_hostname }}"
   
