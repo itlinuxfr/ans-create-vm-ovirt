@@ -12,39 +12,48 @@
     timeout: 45
   delegate_to: localhost
 
-- name: Key Exchange - Fact the network info of the vm
+- name: Key Exchange - Fact the networker info of the vm
   ovirt_nic_info:
     auth: "{{ ovirt_auth }}"
     vm: "{{ inventory_hostname }}"
-    name: nic1
 
+- name: Key Exchange - Fetch IP from XML VM API
+  uri:
+    url: "{{ auth.manager }}/vms/{{ ovirt_nics[0].vm.id }}/nics/{{ ovirt_nics[0].vm.reported_devices[0].id }}/reporteddevices/{{ ovirt_nics[0].vm.reported_devices[0].id }}"
+    user: "{{ auth.username }}"
+    password: "{{ auth.password }}"
+    method: GET
+    return_content: yes
+    valide_certs: no
+    force_basic_auth: yes
+  register: xml
 
-# - name: Key Exchange - Store the dhcp ip to a fact
-#   set_fact: ip_dhcp="{{ fact_lease.stdout }}"
+- name: Key Exchange - Store the dhcp ip to a fact
+  set_fact: ip_dhcp="{{ ovirt_nics[0].reported_devices[0].ips[0].address }}"
 
-# - name: Key Exchange - Check if host is not already in the known_hosts file
-#   lineinfile:
-#     path: /root/.ssh/known_hosts
-#     state: absent
-#     regexp: '^{{ item }}'
-#   delegate_to: localhost
-#   with_items:
-#     - "{{ inventory_hostname }}"
-#   tags:
-#     - erase_ssh_key
+- name: Key Exchange - Check if host is not already in the known_hosts file
+  lineinfile:
+    path: /root/.ssh/known_hosts
+    state: absent
+    regexp: '^{{ item }}'
+  delegate_to: localhost
+  with_items:
+    - "{{ inventory_hostname }}"
+  tags:
+    - erase_ssh_key
 
-# - name: Key Exchange - Check the connection
-#   wait_for_connection:
-#     connect_timeout: 30
-#     sleep: 5
-#     delay: 5
-#     timeout: 300
+- name: Key Exchange - Check the connection
+  wait_for_connection:
+    connect_timeout: 30
+    sleep: 5
+    delay: 5
+    timeout: 300
 
-# - name: Key Exchange - Copy the ssh key to the remote host
-#   authorized_key:
-#     user: root
-#     key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
-#     state: present
-#   tags:
-#     - deploy_ssh_key
-#   delegate_to: "{{ ip_dhcp }}"
+- name: Key Exchange - Copy the ssh key to the remote host
+  authorized_key:
+    user: root
+    key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+    state: present
+  tags:
+    - deploy_ssh_key
+  delegate_to: "{{ ip_dhcp }}"
