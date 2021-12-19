@@ -26,7 +26,7 @@
     password: "{{ auth.password }}"
     method: GET
     return_content: yes
-    valide_certs: no
+    validate_certs: no
     force_basic_auth: yes
   register: xml
 
