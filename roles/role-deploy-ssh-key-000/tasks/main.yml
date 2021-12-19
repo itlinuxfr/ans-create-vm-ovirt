@@ -3,8 +3,8 @@
     url: "{{ auth.manager }}"
     username: "{{ auth.username }}"
     password: "{{ auth.password }}"
+    insecure: "{{ run_insecure }}"
   run_once: yes
-  insecure: "{{ run_insecure }}"
   delegate_to: localhost
 
 - name: Key Exchange - Wait for VM Up
