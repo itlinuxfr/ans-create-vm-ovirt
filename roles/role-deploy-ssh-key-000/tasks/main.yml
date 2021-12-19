@@ -36,29 +36,32 @@
   set_fact:
     ip_dhcp: "{{ xml.content | regex_findall('<address>(.*?)</address>') | first }}"
 
-- name: Key Exchange - Check if host is not already in the known_hosts file
-  lineinfile:
-    path: /root/.ssh/known_hosts
-    state: absent
-    regexp: '^{{ item }}'
-  delegate_to: localhost
-  with_items:
-    - "{{ inventory_hostname }}"
-  tags:
-    - erase_ssh_key
+# The part bellow is commented out when the playbook run within a container like AWX does.
+# By the way, if you are using a Ansible Controller from a Physical or Virtual machine, you can uncomment this out to use passwordless connection
 
-- name: Key Exchange - Check the connection
-  wait_for_connection:
-    connect_timeout: 30
-    sleep: 5
-    delay: 5
-    timeout: 300
+# - name: Key Exchange - Check if host is not already in the known_hosts file
+#   lineinfile:
+#     path: /root/.ssh/known_hosts
+#     state: absent
+#     regexp: '^{{ item }}'
+#   delegate_to: localhost
+#   with_items:
+#     - "{{ inventory_hostname }}"
+#   tags:
+#     - erase_ssh_key
 
-- name: Key Exchange - Copy the ssh key to the remote host
-  authorized_key:
-    user: root
-    key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
-    state: present
-  tags:
-    - deploy_ssh_key
-  delegate_to: "{{ ip_dhcp }}"
+# - name: Key Exchange - Check the connection
+#   wait_for_connection:
+#     connect_timeout: 30
+#     sleep: 5
+#     delay: 5
+#     timeout: 300
+
+# - name: Key Exchange - Copy the ssh key to the remote host
+#   authorized_key:
+#     user: root
+#     key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+#     state: present
+#   tags:
+#     - deploy_ssh_key
+#   delegate_to: "{{ ip_dhcp }}"

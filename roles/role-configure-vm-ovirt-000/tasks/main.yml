@@ -7,15 +7,29 @@
   insecure: "{{ run_insecure }}"
   delegate_to: localhost
 
-- name: oVirt - Get the ipv4 address of the VM
-  ovirt_nic_facts:
+- name: oVirt - Fact the networker info of the vm
+  ovirt_nic_info:
     auth: "{{ ovirt_auth }}"
     vm: "{{ inventory_hostname }}"
-  delegate_to: localhost
+    fetch_nested: yes
+  register: network
 
-- name: oVirt - Store the dhcp ip to a fact
-  set_fact: ip_dhcp="{{ ovirt_nics[0].reported_devices[0].ips[0].address }}"
-  delegate_to: localhost
+- name: oVirt - Fetch IP from XML VM API
+  uri:
+    url: "{{ auth.manager }}/vms/{{ network.ovirt_nics[0].vm.id }}/nics/{{ network.ovirt_nics[0].reported_devices[0].id }}/reporteddevices/{{ network.ovirt_nics[0].reported_devices[0].id }}"
+    user: "{{ auth.username }}"
+    password: "{{ auth.password }}"
+    method: GET
+    return_content: yes
+    validate_certs: no
+    force_basic_auth: yes
+    headers:
+      Content-Type: "application/xml"
+  register: xml
+
+- name: oVirt - Fact ip
+  set_fact:
+    ip_dhcp: "{{ xml.content | regex_findall('<address>(.*?)</address>') | first }}"
 
 - name: oVirt - Verify that ovirt-guest-agent is running
   systemd:
@@ -93,11 +107,12 @@
   run_once: yes
   delegate_to: localhost
 
-- name: oVirt - Update ssh file if needed
-  lineinfile:
-    dest: /root/.ssh/known_hosts
-    regexp: "{{ item }}"
-    state: absent
-  loop:
-    - "{{ ip | ipaddr('address') }}"
-  delegate_to: localhost
+# Not needed unless we're running into a container for AWX, needed by virtual or laptop machine to avoid providing password when "sshing"
+# - name: oVirt - Update ssh file if needed
+#   lineinfile:
+#     dest: /root/.ssh/known_hosts
+#     regexp: "{{ item }}"
+#     state: absent
+#   loop:
+#     - "{{ ip | ipaddr('address') }}"
+#   delegate_to: localhost
