@@ -32,7 +32,7 @@
 
 - name: Key Exchange - Fact ip
   debug:
-    var: "{{ xml.content | regex_findall('\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b') }}"
+    var: "{{ xml.content | regex_findall('<adrress>(.*?)</adrress>') }}"
 
 - name: Key Exchange - Check if host is not already in the known_hosts file
   lineinfile:
