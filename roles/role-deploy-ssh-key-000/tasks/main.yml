@@ -15,7 +15,7 @@
 - name: Key Exchange - Fact the network info of the vm
   ovirt_vm_info:
     auth: "{{ ovirt_auth }}"
-    vm: "{{ inventory_hostname }}"
+    pattern: name="{{ inventory_hostname }}"
 
 
 # - name: Key Exchange - Store the dhcp ip to a fact
