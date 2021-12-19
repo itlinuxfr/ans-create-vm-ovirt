@@ -16,6 +16,7 @@
   ovirt_nic_info:
     auth: "{{ ovirt_auth }}"
     vm: "{{ inventory_hostname }}"
+    name: nic1
 
 
 # - name: Key Exchange - Store the dhcp ip to a fact
