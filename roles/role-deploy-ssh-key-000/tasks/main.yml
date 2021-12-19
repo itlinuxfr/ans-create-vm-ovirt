@@ -31,10 +31,8 @@
   register: xml
 
 - name: Key Exchange - Fact ip
-  xml:
-    xmlstring: "{{ xml.content }}"
-    content: "text"
-    xpath: "/reported_device/address"
+  debug:
+    var: "{{ xml.content | regex_findall('\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b') }}"
 
 - name: Key Exchange - Check if host is not already in the known_hosts file
   lineinfile:
