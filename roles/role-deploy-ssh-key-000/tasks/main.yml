@@ -13,9 +13,9 @@
   delegate_to: localhost
 
 - name: Key Exchange - Fact the network info of the vm
-  ovirt_vm_info:
+  ovirt_nic_info:
     auth: "{{ ovirt_auth }}"
-    pattern: name="{{ inventory_hostname }}"
+    vm: "{{ inventory_hostname }}"
 
 
 # - name: Key Exchange - Store the dhcp ip to a fact
