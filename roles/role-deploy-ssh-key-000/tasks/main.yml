@@ -16,6 +16,7 @@
   ovirt_nic_info:
     auth: "{{ ovirt_auth }}"
     vm: "{{ inventory_hostname }}"
+  register: ovirt_nics
 
 - debug:
     var: ovirt_nics
