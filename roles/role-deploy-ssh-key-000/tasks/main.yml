@@ -12,47 +12,38 @@
     timeout: 45
   delegate_to: localhost
 
-- name: Key Exchange - Fact the networker info of the vm
-  ovirt_nic_info:
+- name: Key Exchange - Fact the network info of the vm
+  ovirt_vm_info:
     auth: "{{ ovirt_auth }}"
     vm: "{{ inventory_hostname }}"
-  register: ovirt_nics
 
-- name: Key Exchange - Store the MAC to a fact
-  set_fact: 
-    vm_mac: "{{ ovirt_nics[0].mac.address }}"
 
-- name: Key Exchange - Fetch IP from DHCP Server
-  shell: "cat /var/dhcpd/var/db/dhcpd.leases |grep -B 7 -A {{ vm_mac }} | egrep '{{ vm_mac }}|lease' |head -n 1 |awk '{print $2}'"
-  register: fact_lease
-  delegate_to: "{{ dhcp_server }}"
+# - name: Key Exchange - Store the dhcp ip to a fact
+#   set_fact: ip_dhcp="{{ fact_lease.stdout }}"
 
-- name: Key Exchange - Store the dhcp ip to a fact
-  set_fact: ip_dhcp="{{ fact_lease.stdout }}"
+# - name: Key Exchange - Check if host is not already in the known_hosts file
+#   lineinfile:
+#     path: /root/.ssh/known_hosts
+#     state: absent
+#     regexp: '^{{ item }}'
+#   delegate_to: localhost
+#   with_items:
+#     - "{{ inventory_hostname }}"
+#   tags:
+#     - erase_ssh_key
 
-- name: Key Exchange - Check if host is not already in the known_hosts file
-  lineinfile:
-    path: /root/.ssh/known_hosts
-    state: absent
-    regexp: '^{{ item }}'
-  delegate_to: localhost
-  with_items:
-    - "{{ inventory_hostname }}"
-  tags:
-    - erase_ssh_key
+# - name: Key Exchange - Check the connection
+#   wait_for_connection:
+#     connect_timeout: 30
+#     sleep: 5
+#     delay: 5
+#     timeout: 300
 
-- name: Key Exchange - Check the connection
-  wait_for_connection:
-    connect_timeout: 30
-    sleep: 5
-    delay: 5
-    timeout: 300
-
-- name: Key Exchange - Copy the ssh key to the remote host
-  authorized_key:
-    user: root
-    key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
-    state: present
-  tags:
-    - deploy_ssh_key
-  delegate_to: "{{ ip_dhcp }}"
+# - name: Key Exchange - Copy the ssh key to the remote host
+#   authorized_key:
+#     user: root
+#     key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+#     state: present
+#   tags:
+#     - deploy_ssh_key
+#   delegate_to: "{{ ip_dhcp }}"
