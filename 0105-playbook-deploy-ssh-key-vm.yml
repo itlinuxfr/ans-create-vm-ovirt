@@ -4,15 +4,9 @@
   gather_facts: true
   connection: local
   pre_tasks:
-  - name: Inclure les variables du projet
-    include_vars:
-      file: "/applis/ansible/ans-create-vm-ovirt/project-vars/ovirt.yml"
   - name: Inclure les variables de la VM
     include_vars:
-      file: "/applis/ansible/ans-create-vm-ovirt/host_vars/{{ inventory_hostname}}/main.yml"
-  - name: Sourcer le vault
-    include_vars:
-      file: "/applis/ansible/ans-create-vm-ovirt/vault/{{ project_vault }}.yml"
+      file: "{{ playbook_dir }}/host_vars/{{ inventory_hostname}}/main.yml"
 
   tasks:
   - name: Inclure les roles
