@@ -34,7 +34,7 @@
 
 - name: Key Exchange - Fact ip
   set_fact:
-    ip_dhcp: "{{ xml.content | regex_findall('<adrress>(.*?)</adrress>') }}"
+    ip_dhcp: "{{ xml.content | regex_findall('<address>(.*?)</address>') }}"
 
 - name: Key Exchange - Check if host is not already in the known_hosts file
   lineinfile:
