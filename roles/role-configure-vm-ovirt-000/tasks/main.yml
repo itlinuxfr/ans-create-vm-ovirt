@@ -1,4 +1,4 @@
-- name: oVirt - Obtain SSO token with using username/password credentials
+- name: oVirt - Obtain SSO token using username/password credentials
   ovirt_auth:
     url: "{{ auth.manager }}"
     username: "{{ auth.username }}"
@@ -7,7 +7,7 @@
   insecure: "{{ run_insecure }}"
   delegate_to: localhost
 
-- name: oVirt - Fact the networker info of the vm
+- name: oVirt - Fact the network info of the vm
   ovirt_nic_info:
     auth: "{{ ovirt_auth }}"
     vm: "{{ inventory_hostname }}"

@@ -1,5 +1,5 @@
 # Playbook for deploying a VM via oVirt & Ansible
-- name: oVirt - Obtain SSO token with using username/password credentials
+- name: oVirt - Obtain SSO token using username/password credentials
   ovirt_auth:
     url: "{{ auth.manager }}"
     username: "{{ auth.username }}"
