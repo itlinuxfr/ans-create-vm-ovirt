@@ -18,9 +18,6 @@
     vm: "{{ inventory_hostname }}"
   register: network
 
-- debug:
-    var: ovirt_nics
-
 - name: Key Exchange - Fetch IP from XML VM API
   uri:
     url: "{{ auth.manager }}/vms/{{ network.ovirt_nics[0].vm.id }}/nics/{{ network.ovirt_nics[0].vm.reported_devices[0].id }}/reporteddevices/{{ network.ovirt_nics[0].vm.reported_devices[0].id }}"
