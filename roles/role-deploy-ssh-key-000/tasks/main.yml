@@ -16,8 +16,7 @@
   ovirt_nic_info:
     auth: "{{ ovirt_auth }}"
     vm: "{{ inventory_hostname }}"
-    fetch_nested: yes
-    nested_attributes: reported_devices
+    follow: reporteddevices
   
 - name: Key Exchange - Store the dhcp ip to a fact
   set_fact: ip_dhcp="{{ ovirt_nics[0].reported_devices[0].ips[0].address }}"
