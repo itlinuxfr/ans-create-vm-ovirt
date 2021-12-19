@@ -18,18 +18,17 @@
     vm: "{{ inventory_hostname }}"
   register: ovirt_nics
 
-- name: Key Exchange - Fetch IP from XML VM API
-  uri:
-    url: "{{ auth.manager }}/vms/{{ ovirt_nics[0].vm.id }}/nics/{{ ovirt_nics[0].vm.reported_devices[0].id }}/reporteddevices/{{ ovirt_nics[0].vm.reported_devices[0].id }}"
-    user: "{{ auth.username }}"
-    password: "{{ auth.password }}"
-    method: GET
-    return_content: yes
-    insecure: "{{ run_insecure }}"
-  register: xml
+- name: Key Exchange - Store the MAC to a fact
+  set_fact: 
+    vm_mac: "{{ ovirt_nics[0].mac.address }}"
+
+- name: Key Exchange - Fetch IP from DHCP Server
+  shell: "cat /var/dhcpd/var/db/dhcpd.leases |grep -B 7 -A {{ vm_mac }} | egrep '{{ vm_mac }}|lease' |head -n 1 |awk '{print $2}'"
+  register: fact_lease
+  delegate_to: "{{ dhcp_server }}"
 
 - name: Key Exchange - Store the dhcp ip to a fact
-  set_fact: ip_dhcp="{{ ovirt_nics[0].reported_devices[0].ips[0].address }}"
+  set_fact: ip_dhcp="{{ fact_lease.stdout }}"
 
 - name: Key Exchange - Check if host is not already in the known_hosts file
   lineinfile:
