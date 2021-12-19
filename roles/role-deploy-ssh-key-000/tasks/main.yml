@@ -16,8 +16,17 @@
   ovirt_nic_info:
     auth: "{{ ovirt_auth }}"
     vm: "{{ inventory_hostname }}"
-    follow: reporteddevices
   
+- name: Key Exchange - Fetch IP from XML VM API
+  uri:
+    url: "{{ auth.manager }}/vms/{{ ovirt_nics[0].vm.id }}/nics/{{ ovirt_nics[0].vm.reported_devices[0].id }}/reporteddevices/{{ ovirt_nics[0].vm.reported_devices[0].id }}"
+    user: "{{ auth.username }}"
+    password: "{{ auth.password }}"
+    method: GET
+    return_content: yes
+    insecure: "{{ run_insecure }}"
+  register: xml
+
 - name: Key Exchange - Store the dhcp ip to a fact
   set_fact: ip_dhcp="{{ ovirt_nics[0].reported_devices[0].ips[0].address }}"
 
