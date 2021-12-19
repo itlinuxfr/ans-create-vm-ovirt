@@ -28,11 +28,13 @@
     return_content: yes
     validate_certs: no
     force_basic_auth: yes
+    headers:
+      Content-Type: "application/xml"
   register: xml
 
 - name: Key Exchange - Fact ip
-  debug:
-    var: "{{ xml.content | regex_findall('<adrress>(.*?)</adrress>') }}"
+  set_fact:
+    ip_dhcp: "{{ xml.content | regex_findall('<adrress>(.*?)</adrress>') }}"
 
 - name: Key Exchange - Check if host is not already in the known_hosts file
   lineinfile:
