@@ -31,7 +31,10 @@
   register: xml
 
 - name: Key Exchange - Fact ip
-  set_fact: ip_dhcp="{{ xml.content |ipaddr('address') }}"
+  xml:
+    xmlstring: "{{ xml.content }}"
+    content: "text"
+    xpath: "/reported_device/address"
 
 - name: Key Exchange - Check if host is not already in the known_hosts file
   lineinfile:
