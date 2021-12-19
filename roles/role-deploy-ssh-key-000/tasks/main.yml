@@ -12,10 +12,11 @@
     timeout: 45
   delegate_to: localhost
 
-- name: Key Exchange - Get the ipv4 address of the VM
+- name: Key Exchange - Fact the networker info of the vm
   ovirt_nic_info:
     auth: "{{ ovirt_auth }}"
     vm: "{{ inventory_hostname }}"
+    fetch_nested: yes
   
 - name: Key Exchange - Store the dhcp ip to a fact
   set_fact: ip_dhcp="{{ ovirt_nics[0].reported_devices[0].ips[0].address }}"
