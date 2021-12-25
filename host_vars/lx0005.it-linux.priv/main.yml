@@ -2,16 +2,16 @@ vm:
   ram: 4
   cpucores: 2
   cpusockets: 1
-  description: "TEST"
-  template: "TemplateCentOSStream"
+  description: "Serveur IPAM Netbox"
+  template: "TemplateRocky85"
 
 ovirt:
   manager: ovirt-managed.it-linux.priv
   datacenter: IT-Linux-DTC01
   cluster: IT-Linux-CT01
   node: ovirt-01.it-linux.priv
-  switch_one: ovirtmgmt
-  switch_two: OV_VLAN_10_DATA
+  switch_one: OV_VLAN_10_DATA
+  switch_two:
   ha: false
   disk:
     data1:
@@ -22,7 +22,7 @@ ovirt:
       name: "{{ inventory_hostname }}_root"
       mount: /root
     data3:
-      taille: 10
+      taille: 25
       format: cow
       datastore: STO_SAS_VM_01
       interface: virtio_scsi
