@@ -3,6 +3,7 @@ all:
     deploy:
       hosts: 
         lx0005.it-linux.priv:
+        lx0006.it-linux.priv:
     ovirt-controller:
       hosts:
         ovirt-managed.it-linux.priv:
