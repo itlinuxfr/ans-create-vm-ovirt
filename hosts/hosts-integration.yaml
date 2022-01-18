@@ -7,8 +7,10 @@
 all:
   deploy:
     hosts: 
-      lx0005.it-linux.priv
+      lx0031.it-linux.priv:
+      lx0032.it-linux.priv:
+      lx0033.it-linux.priv:
   ovirt-controller:
     hosts:
-      ovirt-managed.it-linux.priv
+      ovirt-managed.it-linux.priv:
 
