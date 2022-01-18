@@ -1,0 +1,46 @@
+vm:
+  ram: 12
+  cpucores: 4
+  cpusockets: 1
+  description: "Kubernetes Worker Node 1"
+  template: "TemplateRocky85"
+
+ovirt:
+  manager: ovirt-managed.it-linux.priv
+  datacenter: IT-Linux-DTC01
+  cluster: IT-Linux-CT01
+  node: ovirt-01.it-linux.priv
+  switch_one: OV_VLAN_10_DATA
+  switch_two:
+  ha: false
+  disk:
+    data1:
+      taille: 40
+      format: cow
+      datastore: STO_SSD_VM_01
+      interface: virtio_scsi
+      name: "{{ inventory_hostname }}_root"
+      mount: /root
+    # data3:
+    #   taille: 25
+    #   format: cow
+    #   datastore: STO_SAS_VM_01
+    #   interface: virtio_scsi
+    #   name: "{{ inventory_hostname }}_applis"
+    #   mount: /applis
+
+reseau:
+  dns1: 192.168.10.101
+  dns2: 192.168.10.102
+  domain: it-linux.priv
+  ipa_server: "lx0001.it-linux.priv"
+
+katello:
+  user: "{{ katello_user }}"
+  pass: "{{ katello_pass }}"
+  server: lx0000.it-linux.priv
+  ak: AK_P_C7
+  org: IT-LINUX
+  hg: HG_P_C7
+  location: NIORT
+  rpm_ca: katello-ca-consumer-latest.noarch.rpm
