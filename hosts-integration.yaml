@@ -2,11 +2,11 @@ all:
   children:
     deploy:
       hosts: 
-        lx00031.it-linux.priv:
-        lx00032.it-linux.priv:
-        lx00033.it-linux.priv:
-        lx00034.it-linux.priv:
-        lx00035.it-linux.priv:
+        lx0031.it-linux.priv:
+        lx0032.it-linux.priv:
+        lx0033.it-linux.priv:
+        lx0034.it-linux.priv:
+        lx0035.it-linux.priv:
     ovirt-controller:
       hosts:
         ovirt-managed.it-linux.priv:
